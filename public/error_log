@@ -1,0 +1,18 @@
+[26-Oct-2025 13:52:06 America/Montevideo] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [1045] Access denied for user 'YOUR_DB_USER'@'localhost' (using password: YES) in /home/amvstore/public_html/award/db.php:13
+Stack trace:
+#0 /home/amvstore/public_html/award/db.php(13): PDO->__construct('mysql:host=loca...', 'YOUR_DB_USER', 'YOUR_DB_PASSWOR...', Array)
+#1 /home/amvstore/public_html/award/public/index.php(5): db()
+#2 {main}
+  thrown in /home/amvstore/public_html/award/db.php on line 13
+[26-Oct-2025 13:52:27 America/Montevideo] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [1045] Access denied for user 'YOUR_DB_USER'@'localhost' (using password: YES) in /home/amvstore/public_html/award/db.php:13
+Stack trace:
+#0 /home/amvstore/public_html/award/db.php(13): PDO->__construct('mysql:host=loca...', 'YOUR_DB_USER', 'YOUR_DB_PASSWOR...', Array)
+#1 /home/amvstore/public_html/award/public/index.php(5): db()
+#2 {main}
+  thrown in /home/amvstore/public_html/award/db.php on line 13
+[26-Oct-2025 13:53:18 America/Montevideo] PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000] [1045] Access denied for user 'YOUR_DB_USER'@'localhost' (using password: YES) in /home/amvstore/public_html/award/db.php:13
+Stack trace:
+#0 /home/amvstore/public_html/award/db.php(13): PDO->__construct('mysql:host=loca...', 'YOUR_DB_USER', 'YOUR_DB_PASSWOR...', Array)
+#1 /home/amvstore/public_html/award/public/index.php(5): db()
+#2 {main}
+  thrown in /home/amvstore/public_html/award/db.php on line 13
