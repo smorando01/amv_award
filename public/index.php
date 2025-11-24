@@ -27,8 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (!$me) {
       $login_error = 'No estás habilitado/a para votar. Verificá tu cédula.';
     } else {
+      if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $login_error = 'Ingresá un correo válido.';
+      }
       // Optional email check domain
-      if (!empty($email) && defined('ALLOW_DOMAINS_REGEX') && ALLOW_DOMAINS_REGEX) {
+      if ($login_error === '' && $email !== '' && defined('ALLOW_DOMAINS_REGEX') && ALLOW_DOMAINS_REGEX) {
         if (!preg_match(ALLOW_DOMAINS_REGEX, $email)) {
           $login_error = 'El correo no pertenece al dominio permitido.';
         }

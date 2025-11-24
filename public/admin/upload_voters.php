@@ -5,6 +5,7 @@ $pdo = db();
 
 $msg = '';
 if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['csv'])) {
+  csrf_check();
   if ($_FILES['csv']['error']===UPLOAD_ERR_OK) {
     $tmp = $_FILES['csv']['tmp_name'];
     $fh = fopen($tmp, 'r');
@@ -66,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_FILES['csv'])) {
   <div class="card">
     <h1>📥 Cargar/actualizar votantes (CSV)</h1>
     <form method="post" enctype="multipart/form-data">
+      <?php csrf_input(); ?>
       <input type="file" name="csv" accept=".csv" required>
       <button>Subir</button>
     </form>

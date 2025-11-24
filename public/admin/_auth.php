@@ -2,6 +2,7 @@
 require_once __DIR__.'/../../config.php';
 if (!isset($_SESSION['admin_ok'])) {
   if ($_SERVER['REQUEST_METHOD']==='POST') {
+    csrf_check();
     if (hash_equals(ADMIN_PASSWORD, $_POST['password'] ?? '')) {
       $_SESSION['admin_ok'] = true;
       header('Location: ranking.php'); exit;
@@ -25,6 +26,7 @@ if (!isset($_SESSION['admin_ok'])) {
   <body><div class="wrap"><div class="card">
     <h2>Admin – Acceso</h2>
     <form method="post">
+      <?php csrf_input(); ?>
       <input type="password" name="password" placeholder="Contraseña admin" required>
       <button type="submit">Entrar</button>
     </form>
