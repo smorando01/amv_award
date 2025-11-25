@@ -2,22 +2,43 @@
 // === AMV STORE AWARD 2025 - CONFIG ===
 
 // 1. CARGA DE SECRETOS (Seguridad)
-// Buscamos el archivo .env primero en la raíz del proyecto y, si no está, un nivel arriba
-$envPathLocal = __DIR__ . '/.env';
-$envPathParent = __DIR__ . '/../.env';
-$envPath = null;
+// Buscamos el archivo .env en varias ubicaciones comunes para hosting compartido
+$candidateEnvPaths = [
+    __DIR__ . '/.env',               // raíz del proyecto
+    __DIR__ . '/../.env',            // un nivel arriba
+    __DIR__ . '/public/.env',        // dentro de /public
+    dirname(__DIR__) . '/public/.env',
+];
 
-if (file_exists($envPathLocal)) {
-    $envPath = $envPathLocal;
-} elseif (file_exists($envPathParent)) {
-    $envPath = $envPathParent;
+$envPath = null;
+foreach ($candidateEnvPaths as $path) {
+    if (file_exists($path)) {
+        $envPath = $path;
+        break;
+    }
 }
 
 if ($envPath) {
     $env = parse_ini_file($envPath);
 } else {
-    // Si no existe el archivo (ej. olvidaste subirlo o crearlo), detenemos todo por seguridad.
-    die('Error de configuración: No se encuentra el archivo .env de credenciales. Colocá el archivo en la raíz del proyecto (misma carpeta que config.php).');
+    // Si no hay archivo .env, intentamos usar variables de entorno del servidor (ej. panel de hosting)
+    $env = [
+        'DB_HOST' => getenv('DB_HOST'),
+        'DB_NAME' => getenv('DB_NAME'),
+        'DB_USER' => getenv('DB_USER'),
+        'DB_PASSWORD' => getenv('DB_PASSWORD'),
+        'ADMIN_PASSWORD' => getenv('ADMIN_PASSWORD'),
+    ];
+
+    $missing = array_filter($env, fn($value) => $value === false || $value === null || $value === '');
+
+    if (count($missing) > 0) {
+        // Si faltan credenciales, detenemos todo por seguridad e indicamos todas las rutas probadas
+        $pathsList = implode("\n- ", $candidateEnvPaths);
+        die("Error de configuración: No se encuentra el archivo .env de credenciales ni variables de entorno.\n" .
+            "Verificá que el archivo esté en alguna de estas rutas:\n- {$pathsList}\n" .
+            "O definí las variables DB_HOST, DB_NAME, DB_USER, DB_PASSWORD y ADMIN_PASSWORD en el entorno del servidor.");
+    }
 }
 
 // Database credentials (Cargadas desde el archivo .env)
