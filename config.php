@@ -2,14 +2,22 @@
 // === AMV STORE AWARD 2025 - CONFIG ===
 
 // 1. CARGA DE SECRETOS (Seguridad)
-// Buscamos el archivo .env un nivel arriba de esta carpeta
-$envPath = __DIR__ . '/../.env';
+// Buscamos el archivo .env primero en la raíz del proyecto y, si no está, un nivel arriba
+$envPathLocal = __DIR__ . '/.env';
+$envPathParent = __DIR__ . '/../.env';
+$envPath = null;
 
-if (file_exists($envPath)) {
+if (file_exists($envPathLocal)) {
+    $envPath = $envPathLocal;
+} elseif (file_exists($envPathParent)) {
+    $envPath = $envPathParent;
+}
+
+if ($envPath) {
     $env = parse_ini_file($envPath);
 } else {
     // Si no existe el archivo (ej. olvidaste subirlo o crearlo), detenemos todo por seguridad.
-    die('Error de configuración: No se encuentra el archivo .env de credenciales.');
+    die('Error de configuración: No se encuentra el archivo .env de credenciales. Colocá el archivo en la raíz del proyecto (misma carpeta que config.php).');
 }
 
 // Database credentials (Cargadas desde el archivo .env)
