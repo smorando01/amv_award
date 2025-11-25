@@ -1,13 +1,16 @@
-# Force HTTPS if available
 RewriteEngine On
-RewriteCond %{HTTPS} !=on
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Security headers
-<IfModule mod_headers.c>
-  Header set X-Content-Type-Options "nosniff"
-  Header set X-Frame-Options "SAMEORIGIN"
-  Header set X-XSS-Protection "1; mode=block"
-  Header set Referrer-Policy "strict-origin-when-cross-origin"
-  Header set Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline';"
-</IfModule>
+# Bloquear archivos sensibles
+RedirectMatch 404 ^/(\.env|schema\.sql|bootstrap\.php|composer\.json|composer\.lock)$
+RedirectMatch 404 ^/(src|vendor|config|storage)(/|$)
+
+# API
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.*)$ /api/index.php [QSA,L]
+
+# SPA
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
