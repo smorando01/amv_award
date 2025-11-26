@@ -65,7 +65,7 @@
           <div class="subtitle">Disponible solo para encargados. Podés crear empleados/encargados y eliminar usuarios.</div>
         </div>
       </div>
-      <div class="grid">
+      <div class="grid admin-grid">
         <div class="card">
           <h3>Alta de usuario</h3>
           <form id="admin-create-form">

@@ -66,6 +66,14 @@ body {
   gap: 16px;
 }
 
+.admin-grid {
+  align-items: start;
+}
+
+.admin-grid .card {
+  height: 100%;
+}
+
 .title {
   font-size: clamp(26px, 4vw, 34px);
   font-weight: 700;
@@ -236,4 +244,3 @@ button.secondary {
   .ranking-row .points { grid-area: points; }
   .ranking-row .bar { grid-area: bar; }
 }
-
