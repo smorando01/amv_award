@@ -4,19 +4,27 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Http\Response;
+use App\Config\Config;
 use PDO;
 
 final class RankingController
 {
     private PDO $pdo;
+    private Config $config;
 
-    public function __construct(PDO $pdo)
+    public function __construct(PDO $pdo, Config $config)
     {
         $this->pdo = $pdo;
+        $this->config = $config;
     }
 
-    public function ranking(): void
+    public function ranking(array $user): void
     {
+        if (!$this->config->isSuperAdmin($user)) {
+            Response::json(['error' => 'No autorizado'], 403);
+            return;
+        }
+
         $sql = "
             SELECT c.id,
                    c.name,
@@ -59,4 +67,3 @@ final class RankingController
         ]);
     }
 }
-

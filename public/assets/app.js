@@ -81,15 +81,17 @@ function showLogin() {
   els.loginSection.classList.remove('hidden');
   els.appSection.classList.add('hidden');
   els.rankingSection.classList.add('hidden');
+  els.adminSection.classList.add('hidden');
 }
 
 function showApp() {
   els.loginSection.classList.add('hidden');
   els.appSection.classList.remove('hidden');
-  els.rankingSection.classList.remove('hidden');
-  if (state.user && state.user.role.toLowerCase() === 'encargado') {
+  if (state.user?.is_super_admin) {
+    els.rankingSection.classList.remove('hidden');
     els.adminSection.classList.remove('hidden');
   } else {
+    els.rankingSection.classList.add('hidden');
     els.adminSection.classList.add('hidden');
   }
 }
@@ -106,9 +108,9 @@ async function bootstrap() {
     state.hasVoted = data.has_voted;
     showApp();
     renderUser();
-    const tasks = [loadCandidates(), loadRanking()];
-    if (state.user.role.toLowerCase() === 'encargado') {
-      tasks.push(loadAdminUsers());
+    const tasks = [loadCandidates()];
+    if (state.user.is_super_admin) {
+      tasks.push(loadRanking(), loadAdminUsers());
     }
     await Promise.all(tasks);
   } catch (err) {
@@ -174,7 +176,7 @@ async function submitVote(candidateId, btn) {
     setStatus('success', `Voto registrado para ${res.candidate.name}. Peso: ${res.weight} puntos.`);
     renderUser();
     renderCandidates();
-    await Promise.all([loadRanking(), loadAdminUsersIfNeeded()]);
+    await Promise.all([loadRankingIfNeeded(), loadAdminUsersIfNeeded()]);
   } catch (err) {
     btn.disabled = false;
     setStatus('error', err.message);
@@ -226,7 +228,7 @@ function logout(silent = false) {
 }
 
 async function loadAdminUsersIfNeeded() {
-  if (state.user && state.user.role.toLowerCase() === 'encargado') {
+  if (state.user?.is_super_admin) {
     await loadAdminUsers();
   }
 }
@@ -278,6 +280,11 @@ async function deleteUser(id) {
   }
 }
 
+async function loadRankingIfNeeded() {
+  if (!state.user?.is_super_admin) return;
+  await loadRanking();
+}
+
 if (els.adminCreateForm) {
   els.adminCreateForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -319,7 +326,11 @@ els.loginForm.addEventListener('submit', async (event) => {
     setStatus('success', 'Sesión iniciada');
     showApp();
     renderUser();
-    await Promise.all([loadCandidates(), loadRanking()]);
+    const tasks = [loadCandidates()];
+    if (state.user.is_super_admin) {
+      tasks.push(loadRanking(), loadAdminUsers());
+    }
+    await Promise.all(tasks);
     els.loginForm.reset();
   } catch (err) {
     setStatus('error', err.message);

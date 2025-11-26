@@ -5,8 +5,8 @@ use App\Auth\TokenService;
 use App\Config\Config;
 use App\Controllers\AuthController;
 use App\Controllers\CandidateController;
-use App\Controllers\RankingController;
 use App\Controllers\AdminUserController;
+use App\Controllers\RankingController;
 use App\Controllers\VoteController;
 use App\Http\Cors;
 use App\Http\Response;
@@ -29,11 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $tokens = new TokenService($pdo, $config);
-$authController = new AuthController($pdo, $tokens);
+$authController = new AuthController($pdo, $tokens, $config);
 $candidateController = new CandidateController($pdo);
-$adminUserController = new AdminUserController($pdo);
+$adminUserController = new AdminUserController($pdo, $config);
 $voteController = new VoteController($pdo);
-$rankingController = new RankingController($pdo);
+$rankingController = new RankingController($pdo, $config);
 
 $router = new Router();
 
@@ -64,8 +64,8 @@ $router->add('POST', '/vote', function () use ($tokens, $voteController) {
     $voteController->vote($user);
 });
 $router->add('GET', '/ranking', function () use ($tokens, $rankingController) {
-    $tokens->requireUser();
-    $rankingController->ranking();
+    $user = $tokens->requireUser();
+    $rankingController->ranking($user);
 });
 
 $uri = $_SERVER['REQUEST_URI'] ?? '/';

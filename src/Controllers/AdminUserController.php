@@ -4,21 +4,24 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Http\Response;
+use App\Config\Config;
 use PDO;
 use PDOException;
 
 final class AdminUserController
 {
     private PDO $pdo;
+    private Config $config;
 
-    public function __construct(PDO $pdo)
+    public function __construct(PDO $pdo, Config $config)
     {
         $this->pdo = $pdo;
+        $this->config = $config;
     }
 
     public function list(array $authUser): void
     {
-        if (!$this->isManager($authUser)) {
+        if (!$this->isSuperAdmin($authUser)) {
             Response::json(['error' => 'No autorizado'], 403);
             return;
         }
@@ -36,7 +39,7 @@ final class AdminUserController
 
     public function create(array $authUser): void
     {
-        if (!$this->isManager($authUser)) {
+        if (!$this->isSuperAdmin($authUser)) {
             Response::json(['error' => 'No autorizado'], 403);
             return;
         }
@@ -100,7 +103,7 @@ final class AdminUserController
 
     public function delete(array $authUser): void
     {
-        if (!$this->isManager($authUser)) {
+        if (!$this->isSuperAdmin($authUser)) {
             Response::json(['error' => 'No autorizado'], 403);
             return;
         }
@@ -116,20 +119,28 @@ final class AdminUserController
             return;
         }
 
-        $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = :id LIMIT 1");
-        $stmt->execute(['id' => $id]);
-
-        if ($stmt->rowCount() === 0) {
+        $current = $this->pdo->prepare("SELECT email FROM users WHERE id = :id LIMIT 1");
+        $current->execute(['id' => $id]);
+        $row = $current->fetch();
+        if (!$row) {
             Response::json(['error' => 'Usuario no encontrado'], 404);
             return;
         }
 
+        if ($this->config->isSuperAdmin($row)) {
+            Response::json(['error' => 'No podés eliminar al super administrador'], 422);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $id]);
+
         Response::json(['message' => 'Usuario eliminado']);
     }
 
-    private function isManager(array $user): bool
+    private function isSuperAdmin(array $user): bool
     {
-        return isset($user['role_name']) && strtolower((string)$user['role_name']) === 'encargado';
+        return $this->config->isSuperAdmin($user);
     }
 
     private function roleIdFor(string $roleName): ?int
@@ -140,4 +151,3 @@ final class AdminUserController
         return $id !== false ? (int)$id : null;
     }
 }
-

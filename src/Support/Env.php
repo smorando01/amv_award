@@ -29,6 +29,11 @@ final class Env
             'APP_NAME',
             'CORS_ALLOWED_ORIGINS',
             'TOKEN_TTL_HOURS',
+            'SUPERADMIN_NAME',
+            'SUPERADMIN_EMAIL',
+            'SUPERADMIN_CI',
+            'SUPERADMIN_SECTOR',
+            'SUPERADMIN_PASSWORD_HASH',
         ];
 
         foreach ($keys as $key) {
@@ -41,4 +46,3 @@ final class Env
         return $env;
     }
 }
-

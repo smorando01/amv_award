@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Auth\TokenService;
+use App\Config\Config;
 use App\Http\Response;
 use PDO;
 
@@ -11,11 +12,13 @@ final class AuthController
 {
     private PDO $pdo;
     private TokenService $tokens;
+    private Config $config;
 
-    public function __construct(PDO $pdo, TokenService $tokens)
+    public function __construct(PDO $pdo, TokenService $tokens, Config $config)
     {
         $this->pdo = $pdo;
         $this->tokens = $tokens;
+        $this->config = $config;
     }
 
     public function login(): void
@@ -88,6 +91,7 @@ final class AuthController
             'role' => (string)$user['role_name'],
             'vote_weight' => (int)$user['vote_weight'],
             'can_be_voted' => (bool)$user['can_be_voted'],
+            'is_super_admin' => $this->config->isSuperAdmin($user),
         ];
     }
 }
