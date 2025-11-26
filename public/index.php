@@ -92,6 +92,16 @@
           <h3>Usuarios existentes</h3>
           <div id="admin-users" class="ranking-list"></div>
         </div>
+
+        <div class="card">
+          <h3>Importar usuarios (CSV)</h3>
+          <form id="admin-import-form" enctype="multipart/form-data">
+            <label>Archivo CSV</label>
+            <input type="file" name="file" accept=".csv" required>
+            <div class="subtitle">Encabezados esperados: ci,name,email,sector,role,password</div>
+            <button type="submit">Importar CSV</button>
+          </form>
+        </div>
       </div>
     </section>
   </main>

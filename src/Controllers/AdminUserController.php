@@ -101,6 +101,91 @@ final class AdminUserController
         }
     }
 
+    public function import(array $authUser): void
+    {
+        if (!$this->isSuperAdmin($authUser)) {
+            Response::json(['error' => 'No autorizado'], 403);
+            return;
+        }
+
+        if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+            Response::json(['error' => 'Subí un archivo CSV válido'], 400);
+            return;
+        }
+
+        $fh = fopen($_FILES['file']['tmp_name'], 'r');
+        if (!$fh) {
+            Response::json(['error' => 'No se pudo leer el archivo'], 400);
+            return;
+        }
+
+        $header = fgetcsv($fh, 0, ',');
+        $map = array_map('strtolower', $header ?: []);
+        $required = ['ci', 'name', 'email', 'role', 'password'];
+        if (array_diff($required, $map)) {
+            fclose($fh);
+            Response::json(['error' => 'Encabezados inválidos. Usa: ci,name,email,sector,role,password'], 422);
+            return;
+        }
+        $idx = array_flip($map);
+
+        $stmt = $this->pdo->prepare("
+            INSERT INTO users (ci, name, email, password_hash, sector, role_id, is_active)
+            VALUES (:ci, :name, :email, :hash, :sector, :role_id, 1)
+            ON DUPLICATE KEY UPDATE
+              name = VALUES(name),
+              email = VALUES(email),
+              password_hash = VALUES(password_hash),
+              sector = VALUES(sector),
+              role_id = VALUES(role_id),
+              is_active = VALUES(is_active)
+        ");
+
+        $total = 0;
+        $imported = 0;
+
+        while (($row = fgetcsv($fh, 0, ',')) !== false) {
+            $total++;
+            $ci = preg_replace('/\D+/', '', $row[$idx['ci']] ?? '');
+            $name = trim($row[$idx['name']] ?? '');
+            $email = trim($row[$idx['email']] ?? '');
+            $sector = trim($row[$idx['sector'] ?? null] ?? '');
+            $roleName = strtolower(trim($row[$idx['role']] ?? 'empleado'));
+            $password = (string)($row[$idx['password']] ?? '');
+
+            if ($ci === '' || $name === '' || $email === '' || $password === '') {
+                continue;
+            }
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+
+            $roleId = $this->roleIdFor($roleName) ?? $this->roleIdFor('empleado');
+            if (!$roleId) {
+                continue;
+            }
+
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+
+            $stmt->execute([
+                'ci' => $ci,
+                'name' => $name,
+                'email' => $email,
+                'hash' => $hash,
+                'sector' => $sector ?: null,
+                'role_id' => $roleId,
+            ]);
+            $imported++;
+        }
+        fclose($fh);
+
+        Response::json([
+            'message' => 'Importación finalizada',
+            'rows_read' => $total,
+            'rows_imported' => $imported,
+        ]);
+    }
+
     public function delete(array $authUser): void
     {
         if (!$this->isSuperAdmin($authUser)) {

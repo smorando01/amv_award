@@ -59,6 +59,10 @@ $router->add('POST', '/admin/users/delete', function () use ($tokens, $adminUser
     $user = $tokens->requireUser();
     $adminUserController->delete($user);
 });
+$router->add('POST', '/admin/users/import', function () use ($tokens, $adminUserController) {
+    $user = $tokens->requireUser();
+    $adminUserController->import($user);
+});
 $router->add('POST', '/vote', function () use ($tokens, $voteController) {
     $user = $tokens->requireUser();
     $voteController->vote($user);

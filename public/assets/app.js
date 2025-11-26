@@ -26,13 +26,14 @@ const els = {
   logoutBtn: document.getElementById('logout'),
   adminCreateForm: document.getElementById('admin-create-form'),
   adminUsers: document.getElementById('admin-users'),
+  adminImportForm: document.getElementById('admin-import-form'),
 };
 
 async function api(path, options = {}) {
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(options.headers || {}),
-  };
+  const isFormData = options.body instanceof FormData;
+  const headers = isFormData
+    ? { ...(options.headers || {}) }
+    : { 'Content-Type': 'application/json', ...(options.headers || {}) };
   if (state.token) {
     headers.Authorization = `Bearer ${state.token}`;
   }
@@ -298,6 +299,30 @@ if (els.adminCreateForm) {
       });
       setStatus('success', 'Usuario creado');
       els.adminCreateForm.reset();
+      await loadAdminUsers();
+    } catch (err) {
+      setStatus('error', err.message);
+    }
+  });
+}
+
+if (els.adminImportForm) {
+  els.adminImportForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    clearStatus();
+    const formData = new FormData(els.adminImportForm);
+    if (!formData.get('file')) {
+      setStatus('error', 'Seleccioná un archivo CSV');
+      return;
+    }
+    try {
+      await api('/admin/users/import', {
+        method: 'POST',
+        body: formData,
+        headers: {}, // dejar que fetch gestione multipart
+      });
+      setStatus('success', 'Importación en proceso / completada');
+      els.adminImportForm.reset();
       await loadAdminUsers();
     } catch (err) {
       setStatus('error', err.message);
