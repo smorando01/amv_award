@@ -29,14 +29,15 @@ final class AuthController
             return;
         }
 
+        // MySQL nativo no permite reutilizar el mismo placeholder con emulate_prepares=false
         $stmt = $this->pdo->prepare("
             SELECT u.*, r.name AS role_name, r.vote_weight, r.can_be_voted
             FROM users u
             JOIN roles r ON r.id = u.role_id
-            WHERE (u.email = :id OR u.ci = :id)
+            WHERE (u.email = :email OR u.ci = :ci)
             LIMIT 1
         ");
-        $stmt->execute(['id' => $identifier]);
+        $stmt->execute(['email' => $identifier, 'ci' => $identifier]);
         $user = $stmt->fetch();
 
         if (!$user || (int)$user['is_active'] !== 1 || !password_verify($password, (string)$user['password_hash'])) {
@@ -90,4 +91,3 @@ final class AuthController
         ];
     }
 }
-
