@@ -6,6 +6,7 @@ use App\Config\Config;
 use App\Controllers\AuthController;
 use App\Controllers\CandidateController;
 use App\Controllers\RankingController;
+use App\Controllers\AdminUserController;
 use App\Controllers\VoteController;
 use App\Http\Cors;
 use App\Http\Response;
@@ -30,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $tokens = new TokenService($pdo, $config);
 $authController = new AuthController($pdo, $tokens);
 $candidateController = new CandidateController($pdo);
+$adminUserController = new AdminUserController($pdo);
 $voteController = new VoteController($pdo);
 $rankingController = new RankingController($pdo);
 
@@ -44,6 +46,18 @@ $router->add('GET', '/me', function () use ($tokens, $authController) {
 $router->add('GET', '/candidates', function () use ($tokens, $candidateController) {
     $tokens->requireUser();
     $candidateController->list();
+});
+$router->add('GET', '/admin/users', function () use ($tokens, $adminUserController) {
+    $user = $tokens->requireUser();
+    $adminUserController->list($user);
+});
+$router->add('POST', '/admin/users', function () use ($tokens, $adminUserController) {
+    $user = $tokens->requireUser();
+    $adminUserController->create($user);
+});
+$router->add('POST', '/admin/users/delete', function () use ($tokens, $adminUserController) {
+    $user = $tokens->requireUser();
+    $adminUserController->delete($user);
 });
 $router->add('POST', '/vote', function () use ($tokens, $voteController) {
     $user = $tokens->requireUser();

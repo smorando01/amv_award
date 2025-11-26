@@ -57,6 +57,43 @@
       </div>
       <div class="ranking-list" id="ranking-list"></div>
     </section>
+
+    <section id="admin-card" class="panel hidden">
+      <div class="header-row">
+        <div>
+          <div class="title">Mantenimiento de usuarios</div>
+          <div class="subtitle">Disponible solo para encargados. Podés crear empleados/encargados y eliminar usuarios.</div>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>Alta de usuario</h3>
+          <form id="admin-create-form">
+            <label>Nombre completo</label>
+            <input name="name" placeholder="Nombre y apellido" required>
+            <label>Email</label>
+            <input name="email" type="email" placeholder="usuario@amvstore.com.uy" required>
+            <label>Cédula</label>
+            <input name="ci" placeholder="Solo números" required>
+            <label>Sector</label>
+            <input name="sector" placeholder="Ej: Ventas">
+            <label>Rol</label>
+            <select name="role">
+              <option value="empleado">Empleado (votable, 1 punto)</option>
+              <option value="encargado">Encargado (no votable, 2 puntos)</option>
+            </select>
+            <label>Contraseña</label>
+            <input name="password" type="password" placeholder="Mínimo 8 caracteres" required>
+            <button type="submit">Crear usuario</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Usuarios existentes</h3>
+          <div id="admin-users" class="ranking-list"></div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script src="/assets/app.js" defer></script>
