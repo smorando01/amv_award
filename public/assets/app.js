@@ -166,6 +166,12 @@ async function submitVote(candidateId, btn) {
     return;
   }
 
+  const candidate = state.candidates.find((c) => c.id === candidateId);
+  const name = candidate ? candidate.name : 'este candidato';
+  if (!confirm(`Vas a votar por ${name}. ¿Confirmás tu voto?`)) {
+    return;
+  }
+
   btn.disabled = true;
   setStatus('info', 'Enviando tu voto...');
 
