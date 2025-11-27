@@ -68,10 +68,23 @@ body {
 
 .admin-grid {
   align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
 }
 
 .admin-grid .card {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-grid .ranking-list {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.admin-grid form {
+  flex: 1;
 }
 
 .title {
@@ -192,13 +205,14 @@ button.secondary {
 
 .ranking-row {
   display: grid;
-  grid-template-columns: 36px 1fr 120px 80px;
+  grid-template-columns: 36px 1fr 200px;
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
 }
 
 .bar {
@@ -214,6 +228,33 @@ button.secondary {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(120deg, var(--accent), var(--accent-2));
+}
+
+.ranking-row .details {
+  grid-column: 1 / -1;
+  display: none;
+  margin-top: 8px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border);
+  gap: 6px;
+}
+
+.ranking-row.open .details {
+  display: grid;
+}
+
+.voter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  margin: 2px;
 }
 
 .header-row {

@@ -48,6 +48,7 @@ final class RankingController
 
         $data = [];
         foreach ($rows as $row) {
+            $voters = $this->votersForCandidate((int)$row['id']);
             $data[] = [
                 'id' => (int)$row['id'],
                 'name' => (string)$row['name'],
@@ -56,6 +57,7 @@ final class RankingController
                 'total_votes' => (int)$row['total_votes'],
                 'double_votes' => (int)$row['double_votes'],
                 'percentage' => $max > 0 ? round(((int)$row['points'] / $max) * 100) : 0,
+                'voters' => $voters,
             ];
         }
 
@@ -65,5 +67,32 @@ final class RankingController
                 'max_points' => $max,
             ],
         ]);
+    }
+
+    private function votersForCandidate(int $candidateId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT u.id, u.name, u.email, u.ci, r.name AS role, v.weight
+            FROM votes v
+            JOIN users u ON u.id = v.voter_id
+            JOIN roles r ON r.id = u.role_id
+            WHERE v.candidate_id = :id
+            ORDER BY u.name ASC
+        ");
+        $stmt->execute(['id' => $candidateId]);
+        $rows = $stmt->fetchAll();
+
+        $out = [];
+        foreach ($rows as $row) {
+            $out[] = [
+                'id' => (int)$row['id'],
+                'name' => (string)$row['name'],
+                'email' => (string)$row['email'],
+                'ci' => (string)$row['ci'],
+                'role' => (string)$row['role'],
+                'weight' => (int)$row['weight'],
+            ];
+        }
+        return $out;
     }
 }

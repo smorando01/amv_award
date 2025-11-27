@@ -7,6 +7,7 @@ const state = {
   hasVoted: false,
   candidates: [],
   ranking: [],
+  openRanks: new Set(),
 };
 
 const els = {
@@ -203,17 +204,40 @@ function renderRanking() {
   const rows = state.ranking
     .map(
       (row, idx) => `
-        <div class="ranking-row">
+        <div class="ranking-row ${state.openRanks.has(row.id) ? 'open' : ''}" data-rank-id="${row.id}">
           <div class="pos">${idx + 1}</div>
           <div class="name">${row.name} <span class="pill">${row.sector || '—'}</span></div>
-          <div class="points">${row.points} pts · ${row.total_votes} votos (${row.double_votes} dobles)</div>
+          <div class="points">${row.points} pts (${row.percentage}%) · ${row.total_votes} votos (${row.double_votes} dobles)</div>
           <div class="bar"><span style="width:${row.percentage}%"></span></div>
+          <div class="details">
+            ${
+              row.voters && row.voters.length
+                ? row.voters
+                    .map(
+                      (v) =>
+                        `<div class="voter-pill">${v.name} · ${v.role} · ${v.weight} pt${v.weight > 1 ? 's' : ''}</div>`
+                    )
+                    .join('')
+                : '<div class="status">Sin votos aún.</div>'
+            }
+          </div>
         </div>
       `
     )
     .join('');
 
   els.rankingList.innerHTML = rows;
+  els.rankingList.querySelectorAll('[data-rank-id]').forEach((row) => {
+    row.addEventListener('click', () => {
+      const id = Number(row.dataset.rankId);
+      if (state.openRanks.has(id)) {
+        state.openRanks.delete(id);
+      } else {
+        state.openRanks.add(id);
+      }
+      renderRanking();
+    });
+  });
 }
 
 function logout(silent = false) {

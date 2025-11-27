@@ -51,7 +51,7 @@ final class AdminUserController
         $ci = preg_replace('/\D+/', '', (string)($payload['ci'] ?? ''));
         $sector = trim((string)($payload['sector'] ?? ''));
         $roleName = strtolower(trim((string)($payload['role'] ?? 'empleado')));
-        $password = (string)($payload['password'] ?? '');
+        $password = trim((string)($payload['password'] ?? ''));
 
         if ($name === '' || $email === '' || $ci === '' || $password === '') {
             Response::json(['error' => 'Completá nombre, email, CI y contraseña'], 422);
@@ -151,7 +151,7 @@ final class AdminUserController
             $email = trim($row[$idx['email']] ?? '');
             $sector = trim($row[$idx['sector'] ?? null] ?? '');
             $roleName = strtolower(trim($row[$idx['role']] ?? 'empleado'));
-            $password = (string)($row[$idx['password']] ?? '');
+            $password = trim((string)($row[$idx['password']] ?? ''));
 
             if ($ci === '' || $name === '' || $email === '' || $password === '') {
                 continue;
