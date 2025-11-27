@@ -42,21 +42,25 @@ final class RankingController
 
         $rows = $this->pdo->query($sql)->fetchAll();
         $max = 0;
+        $totalPoints = 0;
         foreach ($rows as $row) {
             $max = max($max, (int)$row['points']);
+            $totalPoints += (int)$row['points'];
         }
 
         $data = [];
         foreach ($rows as $row) {
             $voters = $this->votersForCandidate((int)$row['id']);
+            $points = (int)$row['points'];
             $data[] = [
                 'id' => (int)$row['id'],
                 'name' => (string)$row['name'],
                 'sector' => $row['sector'],
-                'points' => (int)$row['points'],
+                'points' => $points,
                 'total_votes' => (int)$row['total_votes'],
                 'double_votes' => (int)$row['double_votes'],
-                'percentage' => $max > 0 ? round(((int)$row['points'] / $max) * 100) : 0,
+                // Porcentaje de puntos sobre el total (estilo votación electoral)
+                'percentage' => $totalPoints > 0 ? round(($points / $totalPoints) * 100) : 0,
                 'voters' => $voters,
             ];
         }
@@ -65,6 +69,7 @@ final class RankingController
             'ranking' => $data,
             'meta' => [
                 'max_points' => $max,
+                'total_points' => $totalPoints,
             ],
         ]);
     }
