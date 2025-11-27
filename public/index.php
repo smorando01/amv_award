@@ -11,8 +11,8 @@
     <header class="hero">
       <div>
         <div class="badge">AMV Store Award · 2025</div>
-        <div class="title">Empleado/a del Año</div>
-        <p class="subtitle">SPA en modo oscuro conectada a la API REST segura. Un voto por persona, ponderado por rol.</p>
+        <div class="title">Eleccion Empleado/a del Año</div>
+        <p class="subtitle">Un voto por persona, ponderado por rol.</p>
       </div>
       <div class="pill">Encargado = 2 pts · Empleado = 1 pt</div>
     </header>
@@ -22,8 +22,8 @@
     <section id="login-card" class="panel">
       <h2>Ingresá para votar</h2>
       <form id="login-form" autocomplete="off">
-        <label for="identifier">Cédula o correo corporativo</label>
-        <input id="identifier" name="identifier" placeholder="12345678 o tu@amvstore.com.uy" required>
+        <label for="identifier">Cédula</label>
+        <input id="identifier" name="identifier" placeholder="Ingresar CI" required>
 
         <label for="password">Contraseña</label>
         <input id="password" name="password" type="password" placeholder="••••••••" required>
@@ -103,6 +103,7 @@
           </form>
         </div>
       </div>
+      <div id="pending-row" class="pending-row hidden"></div>
     </section>
   </main>
 
