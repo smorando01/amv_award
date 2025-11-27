@@ -28,6 +28,7 @@ const els = {
   adminCreateForm: document.getElementById('admin-create-form'),
   adminUsers: document.getElementById('admin-users'),
   adminImportForm: document.getElementById('admin-import-form'),
+  pendingRow: document.getElementById('pending-row'),
 };
 
 async function api(path, options = {}) {
@@ -112,7 +113,7 @@ async function bootstrap() {
     renderUser();
     const tasks = [loadCandidates()];
     if (state.user.is_super_admin) {
-      tasks.push(loadRanking(), loadAdminUsers());
+      tasks.push(loadRanking(), loadAdminUsers(), loadPending());
     }
     await Promise.all(tasks);
   } catch (err) {
@@ -184,7 +185,7 @@ async function submitVote(candidateId, btn) {
     setStatus('success', `Voto registrado para ${res.candidate.name}. Peso: ${res.weight} puntos.`);
     renderUser();
     renderCandidates();
-    await Promise.all([loadRankingIfNeeded(), loadAdminUsersIfNeeded()]);
+    await Promise.all([loadRankingIfNeeded(), loadAdminUsersIfNeeded(), loadPendingIfNeeded()]);
   } catch (err) {
     btn.disabled = false;
     setStatus('error', err.message);
@@ -264,6 +265,12 @@ async function loadAdminUsersIfNeeded() {
   }
 }
 
+async function loadPendingIfNeeded() {
+  if (state.user?.is_super_admin) {
+    await loadPending();
+  }
+}
+
 async function loadAdminUsers() {
   if (!els.adminUsers) return;
   try {
@@ -314,6 +321,30 @@ async function deleteUser(id) {
 async function loadRankingIfNeeded() {
   if (!state.user?.is_super_admin) return;
   await loadRanking();
+}
+
+async function loadPending() {
+  if (!els.pendingRow) return;
+  try {
+    const data = await api('/admin/users/pending');
+    renderPending(data.pending || []);
+  } catch (err) {
+    setStatus('error', err.message);
+  }
+}
+
+function renderPending(list) {
+  if (!list.length) {
+    els.pendingRow.classList.add('hidden');
+    return;
+  }
+  const names = list.map((u) => u.name || u.email || u.ci);
+  els.pendingRow.innerHTML = `
+    <div class="pending-pill">
+      Pendientes de votar: ${list.length} · ${names.join(' · ')}
+    </div>
+  `;
+  els.pendingRow.classList.remove('hidden');
 }
 
 if (els.adminCreateForm) {

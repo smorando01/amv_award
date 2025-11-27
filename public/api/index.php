@@ -63,6 +63,10 @@ $router->add('POST', '/admin/users/import', function () use ($tokens, $adminUser
     $user = $tokens->requireUser();
     $adminUserController->import($user);
 });
+$router->add('GET', '/admin/users/pending', function () use ($tokens, $adminUserController) {
+    $user = $tokens->requireUser();
+    $adminUserController->pending($user);
+});
 $router->add('POST', '/vote', function () use ($tokens, $voteController) {
     $user = $tokens->requireUser();
     $voteController->vote($user);

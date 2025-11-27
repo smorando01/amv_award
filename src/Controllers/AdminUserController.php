@@ -223,6 +223,32 @@ final class AdminUserController
         Response::json(['message' => 'Usuario eliminado']);
     }
 
+    public function pending(array $authUser): void
+    {
+        if (!$this->isSuperAdmin($authUser)) {
+            Response::json(['error' => 'No autorizado'], 403);
+            return;
+        }
+
+        $superEmail = strtolower((string)$this->config->superAdmin()['email']);
+
+        $stmt = $this->pdo->prepare("
+            SELECT u.id, u.name, u.email, u.ci, u.sector, r.name AS role
+            FROM users u
+            JOIN roles r ON r.id = u.role_id
+            WHERE u.is_active = 1
+              AND LOWER(u.email) <> :super
+              AND NOT EXISTS (
+                SELECT 1 FROM votes v WHERE v.voter_id = u.id
+              )
+            ORDER BY u.name ASC
+        ");
+        $stmt->execute(['super' => $superEmail]);
+        $rows = $stmt->fetchAll();
+
+        Response::json(['pending' => $rows]);
+    }
+
     private function isSuperAdmin(array $user): bool
     {
         return $this->config->isSuperAdmin($user);
